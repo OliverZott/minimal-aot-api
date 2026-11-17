@@ -1,0 +1,6 @@
+@minimal_aot_api_HostAddress = http://localhost:5118
+
+GET {{minimal_aot_api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
