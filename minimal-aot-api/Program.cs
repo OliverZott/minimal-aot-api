@@ -1,4 +1,5 @@
 using MySqlConnector;
+using System.Globalization;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
@@ -50,13 +51,24 @@ app.MapGet("/exports/reading", async (MySqlDataSource db, HttpResponse response,
     await writer.WriteLineAsync(string.Join(';', names));
 
     // data rows
-    var values = new object[reader.FieldCount];
+    var fields = new string[reader.FieldCount];
     while (await reader.ReadAsync(ct))
     {
-        reader.GetValues(values);
-        await writer.WriteLineAsync(string.Join(';', values));
-        await Task.Delay(100, ct);   // TEMPORARY: simulate a slow export
+        for (var i = 0; i < fields.Length; i++)
+            fields[i] = Format(reader.GetValue(i));
+        await writer.WriteLineAsync(string.Join(';', fields));
+
+        //await Task.Delay(100, ct);   // TEMPORARY: simulate a slow export
     }
 });
 
 app.Run();
+
+
+static string Format(object value) => value switch
+{
+    DBNull => "",
+    DateTime d => d.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+    IFormattable f => f.ToString(null, CultureInfo.InvariantCulture),
+    _ => value.ToString() ?? "",
+};
