@@ -29,4 +29,7 @@ FROM mysql.user
 ORDER BY User;
 
 SHOW GRANTS FOR 'csv_export'@'localhost';
+
+SHOW TABLES;
+DESCRIBE <table>;
 ```
